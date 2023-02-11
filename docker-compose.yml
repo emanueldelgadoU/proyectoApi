@@ -1,0 +1,49 @@
+version: "3"
+services:
+  # Nginx
+  web:
+    container_name: nginx3
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./appApi:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - php-fpm
+
+  # ConfiguraciÃ³n de php
+  php-fpm:
+    container_name: php3
+    build: .
+    volumes:
+      - ./appApi:/var/www/html
+
+  #NodeJs
+  node:
+    image: "node:latest"
+    container_name: "nodejs3"
+    user: "node"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - .:/home/node/app
+    ports:
+      - "3000:3000"
+    command: "npm run dev"
+
+  #MongoDB
+  mongo:
+    container_name: mongo3
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: toor
+    ports:
+      - "27017:27017"
+    # volumes:
+    #   - ${PWD}/mongodb:/data/db
+    depends_on:
+      - node
